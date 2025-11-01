@@ -158,6 +158,21 @@ public class RequestController {
         return "ok";
     }
 
+    @PostMapping("/stop")
+    @ResponseBody
+    public String stop() {
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+            }
+            System.exit(0);
+        }).start();
+
+        return "ok";
+    }
+
     @GetMapping("/authMe")
     @ResponseBody
     public String authMe(@CookieValue(value = "playerName", required = false) String playerName) {

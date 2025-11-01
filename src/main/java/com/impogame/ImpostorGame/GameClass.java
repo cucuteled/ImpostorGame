@@ -1,9 +1,12 @@
 package com.impogame.ImpostorGame;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -32,30 +35,32 @@ public class GameClass {
         this.isVote = false;
     }
 
-    private void ReadFiles() throws URISyntaxException {
-        ClassLoader loader = ImpostorGameApplication.class.getClassLoader();
-        URL resource = loader.getResource("static/words/");
-        if (resource == null) {
-            System.out.println("Nem található a words mappa!");
-        } else {
-            File wordfiles = new File(resource.toURI());
-            String[] filenames = wordfiles.list();
-            if (filenames != null) {
-                System.out.println("wordLists loaded: " + Arrays.toString(filenames));
-                for (String file : filenames) {
-                    try {
-                        File f = new File(wordfiles, file);
-                        BufferedReader br = new BufferedReader(new FileReader(f));
-                        List<String> words = new ArrayList<>();
-                        String text;
-                        while ((text = br.readLine()) != null) {
-                            words.add(text);
-                        }
-                        br.close();
-                        wordLista.add(new WordCollection(file.replace(".txt", ""), words));
-                    } catch (Exception e) { }
+
+    private void ReadFiles() {
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+
+        try {
+            // minden TXT fájl a static/words mappában
+            Resource[] resources = resolver.getResources("classpath:static/words/*.txt");
+
+            for (Resource res : resources) {
+                String filename = res.getFilename(); // pl. Sport.txt
+                List<String> words = new ArrayList<>();
+
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(res.getInputStream()))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        words.add(line);
+                    }
                 }
+
+                wordLista.add(new WordCollection(filename.replace(".txt", ""), words));
             }
+
+            System.out.println("wordLists loaded: " + wordLista.stream().map(WordCollection::getListName).toList());
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

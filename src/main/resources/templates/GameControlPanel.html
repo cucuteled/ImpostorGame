@@ -148,6 +148,13 @@
         .player:hover {
             background-color: #00ffc31a;
         }
+        
+        .exit-button {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 1000; /* hogy mindig látszódjon */
+        }
 
         /* FOOTER */
         .alsotitle {
@@ -188,6 +195,8 @@
 <body>
     <h1>Impostor Game</h1><br>
     <h2 id="connectip">Csatlakozási cím:</h2>
+    
+    <button class="exit-button" onclick="stop()">Leállítás</button>
     
     <br><p id="timelabel"></p>
     
@@ -391,6 +400,41 @@
             const minutes = Math.floor(sec / 60);
             const seconds = sec % 60;
             return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+        }
+        
+        function stop() {
+            fetch('/stop', {
+                method: 'POST'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Hiba történt a leállítás során');
+                }
+                return response.text(); 
+            })
+            .then(data => {
+            if (data === "ok") {
+                document.body.innerHTML = `
+                    <div style="
+                        background-color: #333;
+                        color: white;
+                        font-size: 100px;
+                        font-weight: bold;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        margin: 0;
+                    ">
+                        Viszlát!
+                    </div>
+                `;
+            }
+            console.log('Leállítás sikeres:', data);
+            })
+            .catch(error => {
+                console.error('Hiba:', error);
+            });
         }
     </script>
 </body>
