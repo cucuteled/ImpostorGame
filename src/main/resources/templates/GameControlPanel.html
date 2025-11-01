@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impostor Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            font-family: "Segoe UI", sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+            /* Cím */
+            h1 {
+                margin-top: 20px;
+                font-size: 2.5rem;
+                letter-spacing: 1px;
+                text-align: center;
+                color: #00ffc3;
+                text-shadow: 0 0 10px #00ffc3, 0 0 20px #00e6b3;
+                animation: glowPulse 2.5s ease-in-out infinite;
+            }
+            
+            /* Fénylő pulzálás animáció */
+            @keyframes glowPulse {
+                0% {
+                    text-shadow: 0 0 5px #00ffc3, 0 0 10px #00e6b3;
+                    transform: scale(1);
+                }
+                50% {
+                    text-shadow: 0 0 20px #00ffc3, 0 0 40px #00e6b3;
+                    transform: scale(1.05);
+                }
+                100% {
+                    text-shadow: 0 0 5px #00ffc3, 0 0 10px #00e6b3;
+                    transform: scale(1);
+                }
+            }
+
+        /* Konténer a panelekhez */
+        .panel-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 30px;
+            margin-top: 40px;
+            transition: all 0.3s ease;
+        }
+
+        /* Alappanel-stílus */
+        .panel {
+            background-color: #1e1e1e;
+            border: 2px solid #fff;
+            border-radius: 20px;
+            padding: 20px 25px;
+            min-width: 260px;
+            min-height: 200px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .panel:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.25);
+        }
+
+        /* START PANEL */
+        #startpanel {
+            text-align: center;
+        }
+
+        .timer-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0 20px 0;
+        }
+
+        button {
+            background-color: #00ffc3;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease, transform 0.1s ease;
+            color: #000;
+        }
+
+        button:hover {
+            background-color: #00e6ac;
+            transform: scale(1.05);
+        }
+
+        .timer-controls button {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+        }
+
+        #timeLabel {
+            font-size: 1.4rem;
+            width: 80px;
+            text-align: center;
+        }
+
+        #startButton {
+            width: 120px;
+            height: 40px;
+            margin-top: 10px;
+        }
+
+        /* PLAYERLIST */
+        #playerlist {
+            text-align: center;
+        }
+
+        #playerlist h2 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .player {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin: 5px 0;
+            transition: background 0.2s ease;
+        }
+        
+          .player.alive {
+            background-color: #2a2a2a;
+          }
+        
+          .player.dead {
+            background-color: rgba(180, 0, 0, 0.2);
+            border: 1px solid rgba(180, 0, 0, 0.4);
+          }
+
+        .player:hover {
+            background-color: #00ffc31a;
+        }
+
+        /* FOOTER */
+        .alsotitle {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-family: "Times New Roman", serif;
+            font-size: 12px;
+            font-weight: bold;
+            font-style: italic;
+            color: #bbb;
+        }
+        
+        .dropdown {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px 0;
+            border-radius: 10px;
+            border: 1px solid #00ffcc;
+            background-color: #1a1a1a;
+            color: #fff;
+            font-size: 1rem;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown:hover, .dropdown:focus {
+            border-color: #00e6b3;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Impostor Game</h1><br>
+    <h2 id="connectip">Csatlakozási cím:</h2>
+    
+    <br><p id="timelabel"></p>
+    
+    <div class="panel-container">
+    
+    
+    
+        <div class="panel" id="startpanel">
+            <label for="timeLabel">Játék idő:</label>
+            <div class="timer-controls">
+                <button id="minusBtn">-</button>
+                <span id="timeLabel">5:00</span>
+                <button id="plusBtn">+</button>
+            </div>
+            
+            <label for="wordListSelect">Szólista:</label>
+                <select id="wordListSelect" class="dropdown">
+                    <option value="">Betöltés...</option>
+                </select>
+            
+            <button id="startButton">Start</button>
+            <p id="statustext"></p>
+        </div>
+
+        <div class="panel" id="playerlist">
+            <h2>Játékosok:</h2>
+            <div id="players"> <!--<div class="player">Player1</div> !-->
+            </div>
+        </div>
+    </div>
+
+    <div class="alsotitle">developed by cucuteled</div>
+
+    <script>
+    
+        //connectip
+        fetch("/get-ip")
+        .then(r => r.text())
+        .then(ip => {
+        document.getElementById("connectip").innerHTML = `Csatlakozási cím: ${ip}:80/`;
+        });
+        
+        // Kis játékidő állítás
+        let minutes = 5;
+        let seconds = "00";
+
+        const timeLabel = document.getElementById('timeLabel');
+        const timelabel = document.getElementById('timelabel');
+        const minusBtn = document.getElementById('minusBtn');
+        const plusBtn = document.getElementById('plusBtn');
+
+        minusBtn.addEventListener('click', () => {
+            if (seconds == "00") {
+                if (minutes > 3)  {
+                    minutes--;
+                    seconds = "30";
+                }
+            } else {
+                seconds = "00"
+            }
+            updateTime();
+        });
+
+        plusBtn.addEventListener('click', () => {
+            if (seconds == "30") {
+                if (minutes < 8)  {
+                    minutes++;
+                    seconds = "00";
+                }
+            } else {
+                seconds = "30"
+            }
+            updateTime();
+        });
+
+        function updateTime() {
+            const formatted = `${minutes}:${seconds}`;
+            timeLabel.textContent = formatted;
+        }
+
+        // Start gomb esemény
+        document.getElementById('startButton').addEventListener('click', () => {
+            const selectedWordList = document.getElementById("wordListSelect").value;
+            const timeValue = document.getElementById("timeLabel").textContent.trim();
+            const slabel = document.getElementById("statustext");
+            slabel.textContent = "";
+        
+            if (!selectedWordList) {
+                slabel.textContent = "Kérlek válassz egy szólistát!";
+                return;
+            }
+        
+            const startData = {
+                selectedWordList: selectedWordList,
+                time: timeValue
+            };
+        
+            fetch("/startGame", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(startData)
+            })
+            .then(r => r.text())
+            .then(resp => {
+                console.log(resp);
+                if (resp.includes("ok")) {
+                    slabel.textContent = "Játék elindult!";
+                } else {
+                    slabel.textContent = "Nem sikerült elindítani: " + resp;
+                }
+            })
+            .catch(err => {
+                console.error("StartGame hiba:", err);
+                slabel.textContent = "Hiba történt a játék indításakor.";
+            });
+        });
+        
+        // update:
+        const playersDiv = document.getElementById("players");
+        const startPanel = document.getElementById("startpanel");
+        const timeInfo = document.getElementById("timelabel");
+        timeInfo.style.marginTop = "15px";
+        
+        // 500 ms fetch
+        let fetching = false;
+        setInterval(() => {
+            if (fetching) return; // előző lekérés még tart
+            fetching = true;
+        
+            fetch("/getinfo?auth=admin")
+                .then(r => r.json())
+                .then(data => updateGameInfo(data))
+                .catch(err => console.error("getinfo hiba:", err))
+                .finally(() => fetching = false);
+        }, 500);
+        
+        // Frissítés logika
+        function updateGameInfo(data) {
+            // Játékoslista frissítése
+            playersDiv.innerHTML = "";
+            data.players.forEach(p => {
+                const playerEl = document.createElement("div");
+                playerEl.className = "player";
+                playerEl.textContent = p.nev || "Ismeretlen";
+                
+                if (!p.alive) playerEl.classList.add("dead");
+                else playerEl.classList.add("alive");
+        
+                // kuka ikon
+                const trash = document.createElement("img");
+                trash.src = "kuka.png";
+                trash.alt = "Játékos eltávolítása";
+                trash.style.width = "20px";
+                trash.style.height = "20px";
+                trash.style.marginLeft = "10px";
+                trash.style.cursor = "pointer";
+        
+                trash.addEventListener("click", () => {
+                    fetch(`/removePlayer?nev=${encodeURIComponent(p.nev)}`, { method: "POST" })
+                        .then(() => console.log(`${p.nev} eltávolítva`));
+                });
+        
+                playerEl.appendChild(trash);
+                playersDiv.appendChild(playerEl);
+            });
+                            
+                            // Frissítsük a szólistát, ha van ilyen adat
+            if (data.wordCollection && Array.isArray(data.wordCollection)) {
+                const select = document.getElementById("wordListSelect");
+                const currentOptions = Array.from(select.options).map(o => o.value);
+        
+                // csak akkor frissítsük, ha változott
+                if (JSON.stringify(currentOptions) !== JSON.stringify(data.wordCollection)) {
+                    select.innerHTML = ""; // töröljük a régit
+        
+                    data.wordCollection.forEach(wordFile => {
+                        const opt = document.createElement("option");
+                        opt.value = wordFile;
+                        opt.textContent = wordFile.replace(".txt", ""); // szebb név
+                        select.appendChild(opt);
+                    });
+                }
+            }
+            
+
+        
+            // Játék állapot & idő
+            if (data.onGoing) {
+                startPanel.style.display = "none";
+                timeInfo.innerHTML = `<h2>Idő:</h2><b><i> ${formatTime(data.time)}</i></b>`;
+            } else {
+                startPanel.style.display = "block";
+                timeInfo.innerHTML = "";
+            }
+        }
+        
+        // Idő formázás (pl. 300 → 5:00)
+        function formatTime(sec) {
+            const minutes = Math.floor(sec / 60);
+            const seconds = sec % 60;
+            return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+        }
+    </script>
+</body>
+</html>

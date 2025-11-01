@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impostor Game</title>
+<style>
+  /* 🌑 Alapbeállítások */
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a1a, #2b2b2b);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100dvh; /* pontosabb mobilon, mint 100vh */
+    -webkit-tap-highlight-color: transparent; /* ne villogjon iOS-en */
+  }
+
+  /* 💳 Kártya alapstílus */
+  .card {
+    background-color: #101010;
+    border: 2px solid #fff;
+    border-radius: 20px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+  }
+
+  .card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+  }
+
+  /* 🧠 Cím */
+  h1 {
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+    font-size: 1.8rem;
+    text-align: center;
+  }
+
+  /* 🟩 Szó-megjelenítő doboz */
+  #myword {
+    display: inline-block;
+    background-color: #000;
+    color: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.1s ease;
+    user-select: none;
+    width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    text-align: center;
+    margin-bottom: 15px;
+    touch-action: manipulation;
+  }
+
+  #myword:hover {
+    background-color: #111;
+    transform: scale(1.02);
+  }
+
+  /* 👥 Játékoslista */
+  #playerList {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .player {
+    width: 85%;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #2a2a2a;
+    transition: all 0.2s ease;
+    word-break: break-word;
+  }
+
+  .player.alive {
+    background-color: #2a2a2a;
+  }
+
+  .player.dead {
+    background-color: rgba(180, 0, 0, 0.2);
+    border: 1px solid rgba(180, 0, 0, 0.4);
+  }
+
+  .player.me {
+    background-color: rgba(0, 255, 100, 0.25);
+    font-weight: bold;
+  }
+    
+    .player.me.dead {
+      background-color: rgba(120, 0, 0, 0.2);
+      border: 1px solid rgba(120, 0, 0, 0.3);
+    }
+
+  /* 🟢 Gomb */
+  button {
+    margin-top: 1rem;
+    padding: 12px 25px;
+    background-color: #00ffcc;
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    touch-action: manipulation;
+  }
+
+  button:hover {
+    background-color: #00e6b3;
+    transform: scale(1.05);
+  }
+
+  /* 📱 Reszponzív viselkedés mobilon */
+  @media (max-width: 480px) {
+    .card {
+      padding: 1.2rem;
+      width: 95%;
+      max-width: 95%;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    #myword {
+      font-size: 2rem;
+      padding: 12px;
+    }
+
+    .player {
+      width: 100%;
+      font-size: 0.9rem;
+      padding: 8px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+    }
+  }
+
+  /* 🧾 Lábléc */
+  .alsotitle {
+    position: fixed;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-family: "Times New Roman", serif;
+    font-size: 12px;
+    color: #ccc;
+    font-style: italic;
+  }
+  
+              @keyframes glowPulse {
+                0% {
+                    text-shadow: 0 0 5px #00ffc3, 0 0 10px #00e6b3;
+                    transform: scale(1);
+                }
+                50% {
+                    text-shadow: 0 0 20px #00ffc3, 0 0 40px #00e6b3;
+                    transform: scale(1.05);
+                }
+                100% {
+                    text-shadow: 0 0 5px #00ffc3, 0 0 10px #00e6b3;
+                    transform: scale(1);
+                }
+            }
+            
+            .VoteLabel {
+                animation: glowPulse 4.0s ease-in-out infinite;
+            }
+            
+            #voteButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem auto; /* ez középre tolja vízszintesen */
+}
+</style>
+
+</head>
+
+<body>
+  <div class="card">
+    <h1>IMPOSTOR GAME</h1>
+
+    <p id="myword">Kattints ide a szó megjelenítéséhez</p>
+    <p id="gameStatus"></p>
+    <p class="VoteLabel" id="VoteLabel"></p>
+
+    <p>Játékosok:</p>
+    <div id="playerList"></div>
+
+    <button id="voteButton" onclick="requestVote()">Szavazás indítása!</button>
+    <p id="status"></p>
+  </div>
+
+  <div class="alsotitle">
+    <i><b>developed by cucuteled</b></i>
+  </div>
+
+  <script>
+      window.addEventListener('load', () => {
+        fetch('/authMe', {
+            method: 'GET',
+            credentials: 'same-origin'
+        })
+        .then(r => r.text())
+        .then(result => {
+            if (result.trim() === 'ok') {
+                
+            } else {
+                window.location.href = '/';
+            }
+        })
+        .catch(err => console.error('authMe hiba:', err));
+    });
+    // Cookie segédfüggvény
+    function getCookie(name) {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? decodeURIComponent(match[2]) : null;
+    }
+
+    const myword = document.getElementById("myword");
+    const playerList = document.getElementById("playerList");
+    const gameStatus = document.getElementById("gameStatus");
+    const votebutton = document.getElementById("voteButton");
+    const statuslabel = document.getElementById("status");
+
+    let fetching = false;
+    let revealed = false; // szó megjelenítése csak egyszer engedélyezett
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+        return null;
+    }
+
+    setInterval(() => {
+      if (fetching) return;
+      fetching = true;
+      
+      
+    const playerName = getCookie("playerName");
+    if (!playerName) {
+        window.location.href = '/';
+        return;
+    }
+    
+      fetch(`/getinfo?auth=${playerName}`)
+        .then(r => r.json())
+        .then(data => updateGameInfo(data))
+        .catch(err => console.error("getinfo hiba:", err))
+        .finally(() => fetching = false);
+    }, 500);
+    
+    let Started = 0;
+    
+        function updateGameInfo(data) {
+          if (data.time == -99) window.location.href = '/';
+          const me = getCookie("playerName");
+          const ongoing = (data.onGoing === true || data.onGoing === "true");
+          
+          isVoteOnGoing = data.vote;
+          
+          statuslabel.innerHTML = data.message;
+          
+          const votetext = document.getElementById("VoteLabel");
+          if (data.vote) {
+             votetext.textContent = "Szavazás folyamatban"
+          } else {
+              votetext.textContent = ""
+          }
+        
+          if (!ongoing) {
+            myword.textContent = "Várakozás a játék indítására...";
+            myword.style.backgroundColor = "transparent";
+            myword.style.cursor = "default";
+            gameStatus.textContent = "";
+            revealed = false;
+            Started = 0;
+            votebutton.style.display = "none";
+            statuslabel.display = "flex";
+          } else {
+          
+              if (!Started) {
+                  var audio = new Audio('start.wav');
+                  audio.play();
+                  Started = 1;
+              } 
+              statuslabel.display = "none";
+              statuslabel.innerHTML = "";
+          
+            if (!revealed) {
+              myword.textContent = "Tartsd lenyomva a szót a megtekintéshez";
+              myword.style.backgroundColor = "#000";
+              myword.style.cursor = "pointer";
+              
+
+            
+              const showWord = () => {
+              const mePlayer = data.players.find(p => p.nev === me);
+              meJatekos = mePlayer;
+              
+              if (!mePlayer.alive) {
+                  votebutton.style.display = "none";
+              } else {
+                  votebutton.style.display = "flex";
+              }
+
+              if (mePlayer && mePlayer.role === 1) {
+                myword.textContent = "TE VAGY AZ IMPOSZTOR!";
+              } else {
+                myword.textContent = data.szo;
+              }
+
+              };
+            
+              const hideWord = () => {
+                myword.textContent = "Tartsd lenyomva a szót a megtekintéshez";
+              };
+            
+              myword.onmousedown = showWord;
+              myword.onmouseup = hideWord;
+              myword.ontouchstart = showWord;
+              myword.ontouchend = hideWord;
+            
+              revealed = true;
+            }
+            gameStatus.textContent = "Hátralevő idő: " + formatTime(data.time);
+          }
+        
+            // játékoslista frissítése
+            playerList.innerHTML = "";
+            data.players.forEach(p => {
+                const div = document.createElement("div");
+                div.id = "id" + p.nev;
+                div.classList.add("player");
+                if (!p.alive) div.classList.add("dead");
+                else div.classList.add("alive");
+                if (p.nev === me) div.classList.add("me");
+                if (p.nev === me && !p.alive) {
+                    div.classList.add("me");
+                    div.classList.add("dead");
+                }
+            
+                // Ha a játékos már szavazott
+                if (p.hasVoted) {
+                    const voteImg = document.createElement("img");
+                    voteImg.src = isVoteOnGoing ? "voted.png" : "wanttovote.png";
+                    //voteImg.alt = "Szavazott";
+                    voteImg.style.width = "20px";
+                    voteImg.style.height = "20px";
+                    voteImg.style.marginLeft = "8px";
+                    voteImg.style.verticalAlign = "middle";
+                    div.appendChild(voteImg);
+                }
+            
+                div.onclick = () => {
+                    SelectedPlayer = p.nev;
+                    selectPlayer();
+                };
+            
+                // Ha van kép, a szöveget külön span-be tesszük
+                const nameSpan = document.createElement("span");
+                nameSpan.textContent = p.nev;
+                div.insertBefore(nameSpan, div.firstChild);
+            
+                playerList.appendChild(div);
+            });
+            selectPlayer();
+        }
+
+    let SelectedPlayer = "";
+    let meJatekos = getCookie("playerName");
+    let isVoteOnGoing = false;
+    
+    function selectPlayer() {
+        // minden player alaphelyzetbe
+        var name = SelectedPlayer;
+        document.querySelectorAll(".player").forEach(el => {
+            el.style.border = "1px solid white";
+            el.style.boxShadow = "none";
+            el.style.transition = "all 0.2s ease";
+        });
+    
+        // kijelölt player kiemelése
+        const selectedEl = document.getElementById("id" + name);
+        if (selectedEl) {
+            selectedEl.style.border = "2px solid #00ffcc";
+            selectedEl.style.boxShadow = "0 0 10px #00ffcc";
+        }
+    }
+    
+        function requestVote() {
+            if (!SelectedPlayer && isVoteOnGoing) {
+                return;
+            }
+            if (isVoteOnGoing && (SelectedPlayer == meJatekos.nev)) return;
+        
+            selectPlayer();
+            
+            console.log(meJatekos);
+            console.log(meJatekos.nev);
+        
+            fetch(`/vote?voter=${encodeURIComponent(meJatekos.nev)}&votedPlayer=${encodeURIComponent(SelectedPlayer)}`, {
+              method: "POST"
+            })
+            .then(r => r.text())
+            .then(txt => {
+                //document.getElementById("status").textContent = txt;
+            })
+            .catch(err => console.error("Vote hiba:", err));
+            //SelectedPlayer = "";
+        }
+        
+    // Idő formázás (pl. 300 → 5:00)
+        function formatTime(sec) {
+            const minutes = Math.floor(sec / 60);
+            const seconds = sec % 60;
+            return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+        }
+  </script>
+</body>
+</html>
