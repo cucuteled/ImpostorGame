@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Impostor Game</title>
 <style>
-  /* 🌑 Alapbeállítások */
   body {
     margin: 0;
     padding: 0;
@@ -19,7 +18,6 @@
     -webkit-tap-highlight-color: transparent; /* ne villogjon iOS-en */
   }
 
-  /* 💳 Kártya alapstílus */
   .card {
     background-color: #101010;
     border: 2px solid #fff;
@@ -37,7 +35,6 @@
     box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
   }
 
-  /* 🧠 Cím */
   h1 {
     margin-bottom: 1.5rem;
     letter-spacing: 1px;
@@ -45,7 +42,6 @@
     text-align: center;
   }
 
-  /* 🟩 Szó-megjelenítő doboz */
   #myword {
     display: inline-block;
     background-color: #000;
@@ -68,7 +64,6 @@
     transform: scale(1.02);
   }
 
-  /* 👥 Játékoslista */
   #playerList {
     margin-top: 1rem;
     display: flex;
@@ -81,10 +76,11 @@
   .player {
     width: 85%;
     border-radius: 10px;
-    padding: 10px;
+    padding: 14px;
     background-color: #2a2a2a;
     transition: all 0.2s ease;
     word-break: break-word;
+    font-size: 1.2rem;
   }
 
   .player.alive {
@@ -106,16 +102,15 @@
       border: 1px solid rgba(120, 0, 0, 0.3);
     }
 
-  /* 🟢 Gomb */
   button {
     margin-top: 1rem;
-    padding: 12px 25px;
+    padding: 16px 30px;
     background-color: #00ffcc;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     color: #000;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 1.2rem;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
     touch-action: manipulation;
@@ -126,7 +121,6 @@
     transform: scale(1.05);
   }
 
-  /* 📱 Reszponzív viselkedés mobilon */
   @media (max-width: 480px) {
     .card {
       padding: 1.2rem;
@@ -146,8 +140,8 @@
 
     .player {
       width: 100%;
-      font-size: 0.9rem;
-      padding: 8px;
+      font-size: 1.5rem;
+      padding: 16px;
     }
 
     button {
@@ -157,7 +151,6 @@
     }
   }
 
-  /* 🧾 Lábléc */
   .alsotitle {
     position: fixed;
     bottom: 10px;
@@ -195,6 +188,14 @@
   align-items: center;
   margin: 1rem auto; /* ez középre tolja vízszintesen */
 }
+
+/*#status {
+    margin-top: 1rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #00ffc3;
+    text-shadow: 0 0 8px rgba(0, 255, 195, 0.6);
+}*/
 </style>
 
 </head>
@@ -204,7 +205,7 @@
     <h1>IMPOSTOR GAME</h1>
 
     <p id="myword">Kattints ide a szó megjelenítéséhez</p>
-    <p id="gameStatus"></p>
+    <p style="font-size: 1.8rem;" id="gameStatus"></p>
     <p class="VoteLabel" id="VoteLabel"></p>
 
     <p>Játékosok:</p>
@@ -286,10 +287,21 @@
           statuslabel.innerHTML = data.message;
           
           const votetext = document.getElementById("VoteLabel");
-          if (data.vote) {
-             votetext.textContent = "Szavazás folyamatban"
+          if (isVoteOnGoing) {
+             votetext.textContent = "Szavazás folyamatban";
+             
+             if (SelectedPlayer != "") {
+                 votebutton.innerHTML = `<i>Szavazás leadása &nbsp;</i>
+                <b style="color: white; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
+                  ${SelectedPlayer}
+                </b>
+                <i>&nbsp; játékosra!</i>`;
+             } else {
+                 votebutton.innerHTML = "Szavazás leadása";
+             }
           } else {
-              votetext.textContent = ""
+              votebutton.textContent = "Szavazás kérvényezése";
+              votetext.textContent = "";
           }
         
           if (!ongoing) {
@@ -347,7 +359,7 @@
             
               revealed = true;
             }
-            gameStatus.textContent = "Hátralevő idő: " + formatTime(data.time);
+            gameStatus.innerHTML = `Hátralevő idő: <b>${formatTime(data.time)}</b>`;
           }
         
             // játékoslista frissítése

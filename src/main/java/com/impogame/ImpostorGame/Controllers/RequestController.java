@@ -105,7 +105,7 @@ public class RequestController {
         //System.out.println("wantovote: " + wantToVote + "\n" + "wantotovoteint: " + wantToVoteInt + "\n votedplayers: " + votedPlayers + "\n---\n" + voter + ":" + votedPlayer);
 
         // init vote, HA: az élő játékosok több mint 50% szavazni akar
-        if (wantToVoteInt / ImpostorGameApplication.Jatek.playersAlive() *100 > 50 && !ImpostorGameApplication.Jatek.isVote()) {
+        if ((double)wantToVoteInt / (double)ImpostorGameApplication.Jatek.playersAlive() *100.0 > 50.0 && !ImpostorGameApplication.Jatek.isVote()) {
             ImpostorGameApplication.Jatek.initateVote();
             wantToVote = ""; // kiürítjük mert a szavazás alatt is kell számolni ki szavazott
             wantToVoteInt = 0;

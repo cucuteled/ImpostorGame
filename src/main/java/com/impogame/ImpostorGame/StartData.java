@@ -5,9 +5,12 @@ public class StartData {
     private String selectedWordList;
     private String time;
 
-    public StartData(String selectedWordList, String time) {
+    private boolean isMultipleImpostor;
+
+    public StartData(String selectedWordList, String time, boolean isMultipleImpostor) {
         this.selectedWordList = selectedWordList;
         this.time = time;
+        this.isMultipleImpostor = isMultipleImpostor;
     }
 
     public String getSelectedWordList() {
@@ -16,5 +19,9 @@ public class StartData {
 
     public String getTime() {
         return time;
+    }
+
+    public boolean isMultipleImpostor() {
+        return isMultipleImpostor;
     }
 }

@@ -1,0 +1,50 @@
+Hűtőszekrény
+Fagyasztó
+Mosógép
+Szárítógép
+Mosogatógép
+Tűzhely
+Sütő
+Mikrohullámú sütő
+Porszívó
+Gőzvasaló
+Vasalódeszka
+Kávéfőző
+Vízforraló
+Kenyérpirító
+Botmixer
+Turmixgép
+Konyhai robotgép
+Elektromos habverő
+Légkeveréses sütő (air fryer)
+Elektromos grill
+Rizsfőző
+Lassúfőző
+Szendvicssütő
+Palacsintasütő gép
+Elektromos vízmelegítő (bojler)
+Páraelszívó
+Légkondicionáló
+Párásító
+Légszárító
+Ventilátor
+Légszűrő
+Fűtőtest
+Elektromos takaró
+Hajszárító
+Hajvasaló
+Hajgöndörítő
+Elektromos borotva
+Epilátor
+Elektromos fogkefe
+Törölközőszárító
+Kenyérsütő gép
+Daráló
+Húsdaráló
+Turbómixer
+Gyümölcscentrifuga
+Jégkockakészítő
+Elektromos serpenyő
+Elektromos vízforraló kanna
+Fritőz
+Robotporszívó

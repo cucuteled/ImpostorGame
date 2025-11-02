@@ -1,16 +1,10 @@
 package com.impogame.ImpostorGame;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -94,11 +88,12 @@ public class GameClass {
         Jatekos j = jatekosok.get(rnd.nextInt(jatekosok.size()));
         j.setRole(1); // imposztor kiválasztva
         // MÁSODIK IMPOSZTOR 5 JÁTÉK VAGY A FELETT
-        if (playerCount() >= 5) {
-            while (j.getRole() == 0) {
-                j = jatekosok.get(rnd.nextInt(jatekosok.size()));
-            }
-            j.setRole(1);
+        if (playerCount() >= 5 && data.isMultipleImpostor()) {
+            Jatekos j2;
+            do {
+                j2 = jatekosok.get(rnd.nextInt(jatekosok.size()));
+            } while (j2 == j || j2.getRole() == 1);
+            j2.setRole(1);
         }
         //
         startCountdown();
@@ -139,7 +134,7 @@ public class GameClass {
             if (j.getRole() == 1) imposztorok += j.getNev() + "\n";
         }
 
-        setMessage((isImpostorsAlive() ? "Imposztor nyert!" : "Elkapták az imposztort!") + "<br>" + "Imposztorok:<br>" + imposztorok);
+        setMessage("<h2>" + (isImpostorsAlive() ? "<p style='color:#d32f2f;'>Imposztor nyert!</p>" : "<p style='color:#28a745;'>Elkapták az imposztort!</p>") + "</h2><br>" + "Imposztorok:<i><br>" + imposztorok + "</i>");
         isOnGoing = false;
     }
 

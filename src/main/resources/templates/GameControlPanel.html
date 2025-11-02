@@ -83,6 +83,34 @@
             gap: 10px;
             margin: 10px 0 20px 0;
         }
+        
+        .impostor-control {
+          margin: 1.5rem 0;
+        }
+        
+        .impostor-control p {
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+        }
+        
+        
+        .impostor-buttons {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+        }
+        
+        
+        button:active {
+          background-color: #00b58c;
+          transform: scale(0.95);
+        }
+        
+        .impostor-buttons .active {
+          background-color: #009b7c;
+          color: #fff;
+          box-shadow: 0 0 10px #00ffc3;
+        }
 
         button {
             background-color: #00ffc3;
@@ -212,6 +240,14 @@
                 <button id="plusBtn">+</button>
             </div>
             
+        <div class="impostor-control">
+          <p>Imposztor mennyiség:</p>
+          <div class="impostor-buttons">
+            <button onclick="impostor(1)" id="oneImpostor" class="active">1</button>
+            <button onclick="impostor(2)" id="twoImpostor" title="5 vagy több játékos esetén!">2</button>
+          </div>
+        </div>
+            
             <label for="wordListSelect">Szólista:</label>
                 <select id="wordListSelect" class="dropdown">
                     <option value="">Betöltés...</option>
@@ -231,6 +267,23 @@
     <div class="alsotitle">developed by cucuteled</div>
 
     <script>
+    
+        let impostornum = false;
+        
+        function impostor(count) {
+          document.querySelectorAll('.impostor-buttons button').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          if (count === 1) {
+            impostornum = false;
+            document.getElementById('oneImpostor').classList.add('active');
+          } else if (count === 2) {
+            impostornum = true;
+            document.getElementById('twoImpostor').classList.add('active');
+          }
+          
+        }
+        
     
         //connectip
         fetch("/get-ip")
@@ -291,7 +344,8 @@
         
             const startData = {
                 selectedWordList: selectedWordList,
-                time: timeValue
+                time: timeValue,
+                isMultipleImpostor: impostornum
             };
         
             fetch("/startGame", {
