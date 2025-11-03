@@ -27,6 +27,7 @@ public class infoData {
         if (ImpostorGameApplication.Jatek.isMessage()) {
             this.message = ImpostorGameApplication.Jatek.getMessage();
         }
+
     }
 
     public String getMessage() {

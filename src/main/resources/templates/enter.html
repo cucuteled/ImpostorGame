@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" th:href="@{/favicon.ico}">
     <title>Impostor Game</title>
     <style>
         /* Alapbeállítások */
@@ -137,9 +138,17 @@
     });
     
         function joinGame() {
-            const name = document.getElementById('username').value.trim();
+            const nameInput = document.getElementById('username');
+            const name = nameInput.value.trim();
+            
             if (name === '') {
-                name.placeholder = "Adj meg egy nevet!";
+                nameInput.placeholder = "Adj meg egy nevet!";
+                nameInput.value = '';
+                return;
+            }
+            if (name.length < 2) {
+                nameInput.placeholder = "Legalább 2 karaktert adj meg!";
+                nameInput.value = '';
                 return;
             }
             fetch(`/registerMe?nev=${encodeURIComponent(name)}`, {

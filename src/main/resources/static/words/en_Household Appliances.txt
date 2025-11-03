@@ -1,0 +1,50 @@
+Refrigerator
+Freezer
+Washing machine
+Tumbler
+Dishwasher
+Stove
+Oven
+Microwave oven
+Vacuum cleaner
+Steam iron
+Ironing board
+Coffee maker
+Kettle
+Toaster
+Hand blender
+Blender
+Food processor
+Electric whisk
+Air fryer
+Electric grill
+Rice cooker
+Slow cooker
+Sandwich maker
+Pancake maker
+Electric water heater (boiler)
+Commercial range hood
+Air conditioner
+Humidifier
+Air dryer
+Fan
+Air filter
+Heater
+Electric blanket
+Hair dryer
+Hair straightener
+Hair curler
+Electric shaver
+Epilator
+Electric toothbrush
+Towel dryer
+Toaster machine
+Grinder
+Meat grinder
+Turbo blender
+Juicer
+Ice cube maker
+Electric frying pan
+Electric kettle
+Fryer
+Robot vacuum cleaner

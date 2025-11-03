@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" th:href="@{/favicon.ico}">
   <title>Impostor Game</title>
 <style>
   body {
@@ -72,6 +73,24 @@
     gap: 6px;
     width: 100%;
   }
+  
+  .vote-badge {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: black;
+  color: white;
+  border: 2px solid black;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 0 2px white;
+}
 
   .player {
     width: 85%;
@@ -81,6 +100,7 @@
     transition: all 0.2s ease;
     word-break: break-word;
     font-size: 1.2rem;
+    position: relative;
   }
 
   .player.alive {
@@ -189,13 +209,17 @@
   margin: 1rem auto; /* ez középre tolja vízszintesen */
 }
 
-/*#status {
+#status {
     margin-top: 1rem;
     font-size: 1.3rem;
     font-weight: 600;
     color: #00ffc3;
-    text-shadow: 0 0 8px rgba(0, 255, 195, 0.6);
-}*/
+    /*text-shadow: 0 0 8px rgba(0, 255, 195, 0.6);*/
+      display: flex;
+  justify-content: center; /* vízszintesen középre */
+  align-items: center;     /* függőlegesen középre */
+  text-align: center;
+}
 </style>
 
 </head>
@@ -212,7 +236,9 @@
     <div id="playerList"></div>
 
     <button id="voteButton" onclick="requestVote()">Szavazás indítása!</button>
-    <p id="status"></p>
+    <div style="align-items: center;">
+        <p id="status"></p>
+    </div>
   </div>
 
   <div class="alsotitle">
@@ -276,6 +302,10 @@
     }, 500);
     
     let Started = 0;
+    let mePlayer;
+    let prevmsg = "";
+    let prenewmsg = false;
+    let isOnGoing;
     
         function updateGameInfo(data) {
           if (data.time == -99) window.location.href = '/';
@@ -283,19 +313,26 @@
           const ongoing = (data.onGoing === true || data.onGoing === "true");
           
           isVoteOnGoing = data.vote;
+          isOnGoing = ongoing;
           
-          statuslabel.innerHTML = data.message;
+          mePlayer = data.players.find(p => p.nev === me);
+          meJatekos = mePlayer;
           
           const votetext = document.getElementById("VoteLabel");
           if (isVoteOnGoing) {
              votetext.textContent = "Szavazás folyamatban";
              
              if (SelectedPlayer != "") {
-                 votebutton.innerHTML = `<i>Szavazás leadása &nbsp;</i>
-                <b style="color: white; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
-                  ${SelectedPlayer}
-                </b>
-                <i>&nbsp; játékosra!</i>`;
+                 if (SelectedPlayer !== mePlayer.nev) {
+                    votebutton.innerHTML = `<i>Szavazás leadása &nbsp;</i>
+                    <b style="color: white; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
+                      ${SelectedPlayer}
+                    </b>
+                    <i>&nbsp; játékosra!</i>`;
+                 } else {
+                     votebutton.innerHTML = `<i>Nem tudsz magadra szavazni!</i>`;
+                 }
+
              } else {
                  votebutton.innerHTML = "Szavazás leadása";
              }
@@ -304,7 +341,7 @@
               votetext.textContent = "";
           }
         
-          if (!ongoing) {
+          if (!ongoing) { // NEM MEGY A JÁTÉK:
             myword.textContent = "Várakozás a játék indítására...";
             myword.style.backgroundColor = "transparent";
             myword.style.cursor = "default";
@@ -312,50 +349,94 @@
             revealed = false;
             Started = 0;
             votebutton.style.display = "none";
-            statuslabel.display = "flex";
-          } else {
+            statuslabel.display = "block";
+            //
+            if (data.message == "" || data.message.startsWith("[!]")) {
+                statuslabel.innerHTML = "";
+            } else {statuslabel.innerHTML = data.message;}
+          } else { // MEGY A JÁTÉK:
           
               if (!Started) {
                   var audio = new Audio('start.wav');
                   audio.play();
                   Started = 1;
-              } 
-              statuslabel.display = "none";
-              statuslabel.innerHTML = "";
+                  prevmsg = "";
+              }
+             
+            // Üzenetkezelés
+            if (data.message.startsWith("[!]")) {
+                const msg = data.message.replace("[!]", "");
+            
+                // Csak akkor frissítjük, ha új üzenet jött
+                if (msg !== prevmsg) {
+                    prevmsg = msg;
+                    statuslabel.innerHTML = msg;
+                    statuslabel.style.display = "block";
+            
+                    // Időzített eltüntetés
+                    setTimeout(() => {
+                        // Csak akkor tüntetjük el, ha azóta nem jött újabb üzenet
+                        if (statuslabel.innerHTML === msg) {
+                            statuslabel.innerHTML = "";
+                            statuslabel.style.display = "none";
+                        }
+                    }, 6500);
+                }
+            } else {
+                // Ha nincs figyelmeztető üzenet, akkor töröljük
+                statuslabel.innerHTML = "";
+                statuslabel.style.display = "none";
+                prevmsg = "";
+            }
+
+              
+             if (!mePlayer.alive || mePlayer.hasVoted) {
+                  votebutton.style.display = "none";
+              } else {
+                  votebutton.style.display = "flex";
+                  if (prenewmsg) {
+                      prevmsg = "";
+                      prenewmsg = false;
+                  }
+              }
           
-            if (!revealed) {
+            if (!revealed) { // HA NINCS ELREJTVE:
               myword.textContent = "Tartsd lenyomva a szót a megtekintéshez";
               myword.style.backgroundColor = "#000";
               myword.style.cursor = "pointer";
               
 
-            
+             // SHOW WORD:
               const showWord = () => {
-              const mePlayer = data.players.find(p => p.nev === me);
-              meJatekos = mePlayer;
-              
-              if (!mePlayer.alive) {
-                  votebutton.style.display = "none";
-              } else {
-                  votebutton.style.display = "flex";
-              }
-
-              if (mePlayer && mePlayer.role === 1) {
-                myword.textContent = "TE VAGY AZ IMPOSZTOR!";
-              } else {
-                myword.textContent = data.szo;
+              const isOngoing = isOnGoing;
+              if (isOngoing) {
+                  if (mePlayer && mePlayer.role === 1) {
+                    myword.textContent = "TE VAGY AZ IMPOSZTOR!";
+                  } else {
+                    myword.textContent = data.szo;
+                  }
               }
 
               };
+              // HIDE WORD
             
               const hideWord = () => {
-                myword.textContent = "Tartsd lenyomva a szót a megtekintéshez";
+                  const isOngoing = isOnGoing;
+                  if (isOngoing) {
+                     myword.textContent = "Tartsd lenyomva a szót a megtekintéshez";
+                  }
+
               };
-            
+              // WORD VÉGE
+              
+              // MOUSE EVENT PCRE:  
               myword.onmousedown = showWord;
               myword.onmouseup = hideWord;
+              myword.onmouseleave = hideWord;
+              // MOUSE EVENT MOBILRA:
               myword.ontouchstart = showWord;
               myword.ontouchend = hideWord;
+              myword.ontouchcancel = hideWord;
             
               revealed = true;
             }
@@ -387,10 +468,19 @@
                     voteImg.style.verticalAlign = "middle";
                     div.appendChild(voteImg);
                 }
+                // Játékosra leadott szavazatok kijelzése
+                if (isVoteOnGoing && p.votes > 0) {
+                    const num = document.createElement("div");
+                    num.classList.add("vote-badge");
+                    num.textContent = p.votes;
+                    div.appendChild(num);
+                }
             
                 div.onclick = () => {
-                    SelectedPlayer = p.nev;
-                    selectPlayer();
+                    if (isVoteOnGoing && p.nev != meJatekos.nev) {
+                        SelectedPlayer = p.nev;
+                        selectPlayer();
+                    }
                 };
             
                 // Ha van kép, a szöveget külön span-be tesszük
@@ -429,11 +519,12 @@
                 return;
             }
             if (isVoteOnGoing && (SelectedPlayer == meJatekos.nev)) return;
+            if (isVoteOnGoing) prenewmsg = true;
         
             selectPlayer();
             
-            console.log(meJatekos);
-            console.log(meJatekos.nev);
+            //console.log(meJatekos);
+            //console.log(meJatekos.nev);
         
             fetch(`/vote?voter=${encodeURIComponent(meJatekos.nev)}&votedPlayer=${encodeURIComponent(SelectedPlayer)}`, {
               method: "POST"

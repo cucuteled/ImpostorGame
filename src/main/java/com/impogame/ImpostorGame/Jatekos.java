@@ -6,11 +6,24 @@ public class Jatekos {
     private boolean isAlive;
 
     private boolean hasVoted;
+    private int votes;
 
     public Jatekos(String nev) {
         this.nev = nev;
         this.role = 0;
         this.isAlive = true;
+    }
+
+    public int getVotes() {
+        return votes;
+    }
+
+    public void setVotes(int votes) {
+        this.votes = votes;
+    }
+
+    public void incVotes() {
+        this.votes += 1;
     }
 
     public boolean isHasVoted() {

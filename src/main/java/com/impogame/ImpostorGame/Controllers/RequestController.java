@@ -36,6 +36,20 @@ public class RequestController {
         return "GameControlPanel";
     }
 
+    @GetMapping("/get-lang")
+    @ResponseBody
+    public List<String> getLang() {
+        return ImpostorGameApplication.Jatek.getLangs();
+    }
+
+    @PostMapping("/set-lang")
+    @ResponseBody
+    public String setLang(@RequestParam String Lang) {
+        ImpostorGameApplication.Jatek.setLang(Lang);
+        System.out.println(Lang);
+        return "ok";
+    }
+
     @GetMapping("/get-ip")
     @ResponseBody
     public String getClientIp(HttpServletRequest request) {
@@ -93,6 +107,7 @@ public class RequestController {
             if (ImpostorGameApplication.Jatek.isVote()) {
                 if (ImpostorGameApplication.Jatek.findPlayerByName(votedPlayer) && !wantToVote.contains(voter)) {
                     votedPlayers += votedPlayer + ";";
+                    ImpostorGameApplication.Jatek.incVoteForPlayer(votedPlayer);
                 }
             }
 
@@ -122,11 +137,27 @@ public class RequestController {
 
             String legtobb = null;
             int max = -1;
+            int maxCount = 0;
+
             for (Map.Entry<String, Integer> e : counter.entrySet()) {
                 if (e.getValue() > max) {
                     max = e.getValue();
                     legtobb = e.getKey();
+                    maxCount = 1;
+                } else if (e.getValue() == max) {
+                    maxCount++;
                 }
+            }
+
+            if (maxCount > 1) {
+                // DÖNTETLEN SZAVAZÁS:
+                ImpostorGameApplication.Jatek.setMessage("[!]Döntetlen, a szavazás érvénytelen és megismétlődik");
+                // szavazás újra kezdése
+                initVote();
+                return "ok";
+            } else {
+                // KIESIK:
+                ImpostorGameApplication.Jatek.setMessage("[!]Kiesett: " + legtobb);
             }
 
             if (legtobb != null) {

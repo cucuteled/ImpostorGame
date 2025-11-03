@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" th:href="@{/favicon.ico}">
     <title>Impostor Game</title>
     <style>
         body {
@@ -218,6 +219,72 @@
             box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
             outline: none;
         }
+        
+        .langdiv {
+  position: fixed;
+  left: 10px;
+  top: 10px;
+  z-index: 1000;
+}
+        
+
+/* dropdown kinézet */
+.custom-dropdown {
+  position: relative;
+  width: 130px;
+  font-family: sans-serif;
+  user-select: none;
+}
+
+/* a fő gomb (mindig látszik) */
+.dropdown-selected {
+  background: #1a1a1a;
+  color: #fff;
+  padding: 10px;
+  border: 1px solid rgb(100, 100, 50);
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.dropdown-selected:hover {
+  border-color: rgb(160, 160, 80);
+  box-shadow: 0 0 6px rgba(100, 100, 50, 0.6);
+}
+
+/* lenyíló lista */
+.dropdown-options {
+  display: none;
+  position: absolute;
+  background: #1a1a1a;
+  border: 1px solid rgb(100, 100, 50);
+  border-radius: 5px;
+  width: 100%;
+  top: 110%;
+  left: 0;
+}
+
+/* opciók kinézete */
+.dropdown-options div {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-options div:hover {
+  background: rgba(100, 100, 50, 0.2);
+}
+
+.dropdown-options img {
+  width: 20px;
+  height: 14px;
+  margin-right: 8px;
+  border-radius: 2px;
+}
     </style>
 </head>
 <body>
@@ -228,9 +295,15 @@
     
     <br><p id="timelabel"></p>
     
+    <!-- NYELVEK !-->
+<div class="langdiv">
+  <div class="custom-dropdown" id="langDropdown">
+    <div class="dropdown-selected">🌍</div>
+    <div class="dropdown-options" id="langOptions"></div>
+  </div>
+</div>
+    
     <div class="panel-container">
-    
-    
     
         <div class="panel" id="startpanel">
             <label for="timeLabel">Játék idő:</label>
@@ -269,7 +342,7 @@
     <script>
     
         let impostornum = false;
-        
+        const slabel = document.getElementById("statustext");
         function impostor(count) {
           document.querySelectorAll('.impostor-buttons button').forEach(btn => {
             btn.classList.remove('active');
@@ -291,6 +364,59 @@
         .then(ip => {
         document.getElementById("connectip").innerHTML = `Csatlakozási cím: ${ip}:80/`;
         });
+        
+        //get-lang
+fetch("/get-lang")
+  .then(r => r.json())
+  .then(data => {
+    const optionsContainer = document.getElementById("langOptions");
+    const selected = document.querySelector(".dropdown-selected");
+
+const browserLang = (navigator.language || navigator.userLanguage || "en")
+  .slice(0, 2)
+  .toUpperCase();
+let defaultLangFound = false;
+
+    data.forEach(langname => {
+      const option = document.createElement("div");
+      const img = document.createElement("img");
+      img.src = `/lang/${langname}_flag.png`;
+      img.width = 30;
+      img.height = 10;
+      const text = document.createElement("span");
+      text.textContent = langname;
+      
+      if (langname.toUpperCase().startsWith(browserLang)) {
+  defaultLangFound = true;
+   selected.innerHTML = `<img src="/lang/${langname}_flag.png" width="20" height="14" style="border-radius:2px;margin-right:5px;"> ${langname}`;
+}
+
+      option.appendChild(img);
+      option.appendChild(text);
+
+      option.addEventListener("click", () => {
+        selected.innerHTML = `${img.outerHTML} ${langname}`;
+        optionsContainer.style.display = "none";
+        
+              fetch("/set-lang", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `Lang=${encodeURIComponent(langname)}`
+    });
+      });
+
+      optionsContainer.appendChild(option);
+    });
+    
+    if (!defaultLangFound && data.includes("HU")) {
+  selected.innerHTML = `<img src="/lang/HU_flag.png" width="20" height="14" style="border-radius:2px;margin-right:5px;"> HU`;
+}
+
+    selected.addEventListener("click", () => {
+      const display = optionsContainer.style.display === "block" ? "none" : "block";
+      optionsContainer.style.display = display;
+    });
+  });
         
         // Kis játékidő állítás
         let minutes = 5;
@@ -334,7 +460,6 @@
         document.getElementById('startButton').addEventListener('click', () => {
             const selectedWordList = document.getElementById("wordListSelect").value;
             const timeValue = document.getElementById("timeLabel").textContent.trim();
-            const slabel = document.getElementById("statustext");
             slabel.textContent = "";
         
             if (!selectedWordList) {
@@ -446,6 +571,7 @@
             } else {
                 startPanel.style.display = "block";
                 timeInfo.innerHTML = "";
+                slabel.textContent = "";
             }
         }
         

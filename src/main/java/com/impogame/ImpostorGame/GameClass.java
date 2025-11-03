@@ -19,7 +19,10 @@ public class GameClass {
 
     private boolean isVote;
 
-    public static List<WordCollection> wordLista = new ArrayList<>();
+    private List<WordCollection> wordLista = new ArrayList<>();
+    private List<WordCollection> LangLista = new ArrayList<>();
+
+    private String selectedLang = "HU";
 
     public GameClass() {
         this.jatekosok = new ArrayList<>();
@@ -53,6 +56,26 @@ public class GameClass {
 
             System.out.println("wordLists loaded: " + wordLista.stream().map(WordCollection::getListName).toList());
 
+            // a langokat:
+
+            Resource[] langres = resolver.getResources("classpath:static/lang/*.txt");
+
+            for (Resource res : langres) {
+                String filename = res.getFilename(); // pl. Sport.txt
+                List<String> words = new ArrayList<>();
+
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(res.getInputStream()))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        words.add(line);
+                    }
+                }
+
+                LangLista.add(new WordCollection(filename.replace(".txt", ""), words));
+            }
+
+            System.out.println("wordLists loaded: " + wordLista.stream().map(WordCollection::getListName).toList());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,16 +87,15 @@ public class GameClass {
         szo = "";
         isOnGoing = true;
         isVote = false;
+        message = "";
         String[] idostring = data.getTime().split(":");
         time = 300;
         if (idostring.length == 2) {
             time = Integer.parseInt(idostring[0]) * 60 + Integer.parseInt(idostring[1]);
         } else { time = 300; }
         System.out.println("Játék idő: " + time );
-        String selectedList = data.getSelectedWordList();
-        for (WordCollection w : wordLista) {
-            if (w.getListName().equals(selectedList)) szo = w.getRandomWord(); // select random next word
-        }
+        szo = getWordCollectionObject(data.getSelectedWordList()).getRandomWord(); // select random next word
+
         if (szo.equals("")) {
             System.out.println("Hiba!");
             System.exit(1);
@@ -134,8 +156,28 @@ public class GameClass {
             if (j.getRole() == 1) imposztorok += j.getNev() + "\n";
         }
 
-        setMessage("<h2>" + (isImpostorsAlive() ? "<p style='color:#d32f2f;'>Imposztor nyert!</p>" : "<p style='color:#28a745;'>Elkapták az imposztort!</p>") + "</h2><br>" + "Imposztorok:<i><br>" + imposztorok + "</i>");
+        setMessage(
+                "<h2>" +
+                        "<p style='color:" + (isImpostorsAlive() ? "#d32f2f" : "#28a745") + "; font-weight:bold; text-align:center;'>"
+                        + (isImpostorsAlive() ? "Az imposztor győzött!" : "A játékosok nyertek!") + "</p>" +
+                        "<p style='text-align:center;'>Imposztorok:<br><i>" + imposztorok + "</i></p>"
+        );
         isOnGoing = false;
+        isVote = false;
+    }
+
+    public List<String> getLangs() {
+        List<String> langs = new ArrayList<>();
+        for (WordCollection w : LangLista) {
+            langs.add(w.getListName());
+        }
+        return langs;
+    }
+
+    public void setLang(String lang) {
+        for (WordCollection w : LangLista) {
+            if (w.getListName().toUpperCase().equals(w.getListName().toUpperCase())) selectedLang = lang.toUpperCase();
+        }
     }
 
     public void  initateVote() {
@@ -197,6 +239,13 @@ public class GameClass {
     public void setAllVoteZero() {
         for (Jatekos j: jatekosok) {
             j.setHasVoted(false);
+            j.setVotes(0);
+        }
+    }
+
+    public void incVoteForPlayer(String playername) {
+        for (Jatekos j: jatekosok) {
+            if (j.getNev().equals(playername)) j.incVotes();
         }
     }
 
@@ -241,9 +290,21 @@ public class GameClass {
     {
         List<String> wordCollection = new ArrayList<>();
         for (WordCollection w : wordLista) {
-            wordCollection.add(w.getListName());
+            String listname = w.getListName();
+            String[] ln = listname.split("_");
+            if (ln[0].equalsIgnoreCase(selectedLang.toLowerCase())) wordCollection.add(ln[1]);
         }
         return wordCollection;
+    }
+
+    public WordCollection getWordCollectionObject(String SelectedList)
+    {
+        for (WordCollection w : wordLista) {
+            String listname = w.getListName();
+            String[] ln = listname.split("_");
+            if (ln[0].equalsIgnoreCase(selectedLang.toLowerCase()) && ln[1].equalsIgnoreCase(SelectedList)) return w;
+        }
+        return wordLista.get(1);
     }
 
     public String getMessage() {
@@ -252,6 +313,7 @@ public class GameClass {
 
     public void setMessage(String message) {
         this.message = message;
+        System.out.println(message);
     }
 
     public boolean isMessage() {
