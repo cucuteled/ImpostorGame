@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="hu" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Play / Játék</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #00ffc3;
+        }
+
+        h2 {
+            margin-top: 30px;
+            font-size: 1.5rem;
+        }
+
+        hr {
+            border: 1px solid #00ffc3;
+            margin: 20px 0;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .lang-section {
+            margin-bottom: 30px;
+        }
+
+        .lang-section h3 {
+            color: #00e6b3;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Impostor Game / Játék</h1>
+        
+        <div class="lang-section">
+            <h2>Játékmenet / How to Play</h2>
+            
+            <h3>Magyar:</h3>
+            <ul>
+                <li>Mindenki kap egy szót, kivéve az Imposztor. A szóról valamilyen jellemzőt kell mondani, de úgy, hogy ne legyen egyértelmű az imposztor számára.</li>
+                <li>Körbe kell menni, a kört tetszőlegesen kell megkezdeni és folytatni az irányba. Mindenki mondjon egy szót. Ha gyanítod, hogy ki az Imposztor, kérvényezz szavazást.</li>
+                <li>Ha a többség kérvényezte, elindul a szavazás, amit a szöveg is jelez. Szavazatot kell leadni valakire. Ha valaki többségi szavazatot kap, kiesik!</li>
+                <li>Nyerni úgy lehet, ha a szavazás képtelen játékfeltételig jut el az Imposztor, vagy kiejtik az Imposztort.</li>
+                <li>Az idő lejártával folyamatos kényszerített szavazások indulnak.</li>
+            </ul>
+
+            <h3>English:</h3>
+            <ul>
+                <li>Everyone receives a word, except the Impostor. You need to say a characteristic about the word without making it obvious for the Impostor.</li>
+                <li>Take turns in any order. Each player says a word. If you suspect someone is the Impostor, request a vote.</li>
+                <li>When a majority requests a vote, it starts (indicated by text). Cast your vote for a player. If a player receives the majority, they are eliminated!</li>
+                <li>Win by either reaching the game’s conditions without the Impostor being discovered, or by voting the Impostor out.</li>
+                <li>When time runs out, forced votes occur continuously.</li>
+            </ul>
+        </div>
+
+        <hr>
+
+        <div class="lang-section">
+            <h2>Technikai részletek / Technical Details</h2>
+
+            <h3>Magyar:</h3>
+            <ul>
+                <li>Szükséges Java verzió: Java SDK 23.0.1 vagy nagyobb.</li>
+                <li>3-8 főig.</li>
+                <li>A résztvevőknek egy hálózaton kell lenniük, vagy nyitott port.</li>
+                <li>A port módosítható: <code>jar/BOOT-INF/classes/application.properties</code> fájlban: <code>server.port=?</code> (Alapértelmezett: 80)</li>
+                <li>Indítás: dupla kattintás vagy terminál: <code>java -jar Impostorgame.x.x.jar</code> (.bat)</li>
+                <li>Leállítás: a kezelőfelületen jobb felső sarokban a 'Leállítás' gomb.</li>
+                <li>Saját szavak használata: <code>jar/BOOT-INF/classes/static/words/</code> mappában található .txt fájlok. Neved hozzáadása: "hu_típus.txt" formátumban.</li>
+                <li>A fájl szerkesztéséhez használj olyan programot, ami képes .jar fájlokat megnyitni (pl. WinRAR).</li>
+            </ul>
+
+            <h3>English:</h3>
+            <ul>
+                <li>Required Java version: Java SDK 23.0.1 or higher.</li>
+                <li>Supports 3-8 players.</li>
+                <li>Players must be on the same network or open port.</li>
+                <li>Port can be modified in <code>jar/BOOT-INF/classes/application.properties</code>: <code>server.port=?</code> (Default: 80)</li>
+                <li>Start: double click or terminal: <code>java -jar Impostorgame.x.x.jar</code> (.bat)</li>
+                <li>Stop: Use the 'Shutdown' button at the top-right of the control panel.</li>
+                <li>Custom words: Add .txt files to <code>jar/BOOT-INF/classes/static/words/</code>. File name format: "en_type.txt" or "hu_type.txt".</li>
+                <li>To edit the .jar files, use a program that can open them, e.g., WinRAR.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
