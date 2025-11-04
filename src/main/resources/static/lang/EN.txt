@@ -1,0 +1,22 @@
+#lang:EN
+#Common
+error_:Error!
+#GameClass
+time_text_:Game time:
+println_theword_:The word:
+time_up_:Time is up!
+game_end_:The game has ended!
+impostor_win_:Impostor won
+impostor_lose_:The impostor was caught
+msg_impostor_win_:The impostor has won!
+msg_impostor_lose_:The players have won
+msg_impostors_:Impostors:
+#RequestController
+game_starts_:Game is starting! Word list:
+time_:, time:
+msg_tie_vote_:[!]Tie — the vote is invalid and will be repeated
+msg_player_voted_out_:[!]Voted out:
+game_start_info_name_equal_error_:A player with this name already exists.
+game_start_info_maximum_8_player_:Maximum 8 players allowed!
+game_start_info_minimum_3_player_:Minimum 3 players!
+game_start_info_already_started_:The game has already started!

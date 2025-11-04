@@ -67,7 +67,10 @@ public class GameClass {
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(res.getInputStream()))) {
                     String line;
                     while ((line = br.readLine()) != null) {
-                        words.add(line);
+                        if (line.startsWith("#") || line.isEmpty()) continue;
+                        try {
+                            words.add(line.split("_:")[1]);
+                        } catch (Exception e) {}
                     }
                 }
 
@@ -93,14 +96,14 @@ public class GameClass {
         if (idostring.length == 2) {
             time = Integer.parseInt(idostring[0]) * 60 + Integer.parseInt(idostring[1]);
         } else { time = 300; }
-        System.out.println("Játék idő: " + time );
+        System.out.println(langControl.time_text + " " + time );
         szo = getWordCollectionObject(data.getSelectedWordList()).getRandomWord(); // select random next word
 
         if (szo.equals("")) {
-            System.out.println("Hiba!");
+            System.out.println(langControl.error);
             System.exit(1);
         }
-        System.out.println("\nA szó: " + szo);
+        System.out.println("\n" + langControl.println_theword + " " + szo);
         // Játékosok handlingje
         for (Jatekos j : jatekosok) {
             j.setAlive(true);
@@ -133,22 +136,26 @@ public class GameClass {
                 try {
                     Thread.sleep(1000); // 1 másodperc várakozás
                 } catch (InterruptedException e) {
-                    System.out.println("Szál megszakítva");
+                    System.out.println(langControl.error + " :Thread");
                     break;
                 }
             }
-            System.out.println("Idő lejárt!");
+            System.out.println(langControl.time_up);
             endGame();
         });
 
         countdownThread.start();
     }
 
+    public String getSelectedLang() {
+        return selectedLang;
+    }
+
     public void endGame() {
         while (isImpostorsAlive() && playersAlive() >= 3) {
             initateVote();
         }
-        System.out.println("A játék véget ért!" + (isImpostorsAlive() ? "Imposztor nyert" : "Elkapták az imposztort"));
+        System.out.println(langControl.game_end + (isImpostorsAlive() ? langControl.impostor_win : langControl.impostor_lose));
 
         String imposztorok = "";
 
@@ -159,8 +166,8 @@ public class GameClass {
         setMessage(
                 "<h2>" +
                         "<p style='color:" + (isImpostorsAlive() ? "#d32f2f" : "#28a745") + "; font-weight:bold; text-align:center;'>"
-                        + (isImpostorsAlive() ? "Az imposztor győzött!" : "A játékosok nyertek!") + "</p>" +
-                        "<p style='text-align:center;'>Imposztorok:<br><i>" + imposztorok + "</i></p>"
+                        + (isImpostorsAlive() ? langControl.msg_impostor_win : langControl.msg_impostor_lose) + "</p>" +
+                        "<p style='text-align:center;'>" + langControl.msg_impostors + "<br><i>" + imposztorok + "</i></p>"
         );
         isOnGoing = false;
         isVote = false;
@@ -168,6 +175,7 @@ public class GameClass {
 
     public List<String> getLangs() {
         List<String> langs = new ArrayList<>();
+        langs.add(getSelectedLang());
         for (WordCollection w : LangLista) {
             langs.add(w.getListName());
         }
@@ -176,7 +184,11 @@ public class GameClass {
 
     public void setLang(String lang) {
         for (WordCollection w : LangLista) {
-            if (w.getListName().toUpperCase().equals(w.getListName().toUpperCase())) selectedLang = lang.toUpperCase();
+            if (w.getListName().equalsIgnoreCase(lang)) {
+                selectedLang = lang.toUpperCase();
+                langControl.initLang(w);
+                break;
+            }
         }
     }
 
@@ -302,7 +314,7 @@ public class GameClass {
         for (WordCollection w : wordLista) {
             String listname = w.getListName();
             String[] ln = listname.split("_");
-            if (ln[0].equalsIgnoreCase(selectedLang.toLowerCase()) && ln[1].equalsIgnoreCase(SelectedList)) return w;
+            if (ln[0].equalsIgnoreCase(selectedLang) && ln[1].equalsIgnoreCase(SelectedList)) return w;
         }
         return wordLista.get(1);
     }

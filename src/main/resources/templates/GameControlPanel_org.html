@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hu" xmlns:th="http://www.thymeleaf.org">
+<html lang="hu">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -289,9 +289,9 @@
 </head>
 <body>
     <h1>Impostor Game</h1><br>
-    <h2 id="connectip" th:text="#{gc.connectip}">Csatlakozási cím:</h2>
+    <h2 id="connectip">Csatlakozási cím:</h2>
     
-    <button class="exit-button" onclick="stop()" th:text="#{gc.shutdown}">Leállítás</button>
+    <button class="exit-button" onclick="stop()">Leállítás</button>
     
     <br><p id="timelabel"></p>
     
@@ -306,7 +306,7 @@
     <div class="panel-container">
     
         <div class="panel" id="startpanel">
-            <label for="timeLabel" th:text="#{gc.game.time}">Játék idő:</label>
+            <label for="timeLabel">Játék idő:</label>
             <div class="timer-controls">
                 <button id="minusBtn">-</button>
                 <span id="timeLabel">5:00</span>
@@ -314,16 +314,16 @@
             </div>
             
         <div class="impostor-control">
-          <p th:text="#{gc.impostor.ammount}">Imposztor mennyiség:</p>
+          <p>Imposztor mennyiség:</p>
           <div class="impostor-buttons">
             <button onclick="impostor(1)" id="oneImpostor" class="active">1</button>
-            <button onclick="impostor(2)" id="twoImpostor" th:title="#{gc.impostor.ammount.title}" title="5 vagy több játékos esetén!">2</button>
+            <button onclick="impostor(2)" id="twoImpostor" title="5 vagy több játékos esetén!">2</button>
           </div>
         </div>
             
-            <label for="wordListSelect" th:text="#{gc.wordlist}">Szólista:</label>
+            <label for="wordListSelect">Szólista:</label>
                 <select id="wordListSelect" class="dropdown">
-                    <option value="" th:text="#{gc.loading}">Betöltés...</option>
+                    <option value="">Betöltés...</option>
                 </select>
             
             <button id="startButton">Start</button>
@@ -331,7 +331,7 @@
         </div>
 
         <div class="panel" id="playerlist">
-            <h2 th:text="#{gc.players}">Játékosok:</h2>
+            <h2>Játékosok:</h2>
             <div id="players"> <!--<div class="player">Player1</div> !-->
             </div>
         </div>
@@ -339,7 +339,7 @@
 
     <div class="alsotitle">developed by cucuteled</div>
 
-    <script th:inline="javascript">
+    <script>
     
         let impostornum = false;
         const slabel = document.getElementById("statustext");
@@ -363,8 +363,7 @@
         fetch("/get-ip")
         .then(r => r.text())
         .then(ip => {
-        const cstitle = /*[[#{gc.connectip}]]*/ "Csatlakozási cím:";
-        document.getElementById("connectip").innerHTML = `${cstitle} ${ip}:80/`;
+        document.getElementById("connectip").innerHTML = `Csatlakozási cím: ${ip}:80/`;
         });
         
         //get-lang
@@ -379,19 +378,16 @@ const browserLang = (navigator.language || navigator.userLanguage || "en")
   .toUpperCase();
 let defaultLangFound = false;
 
-const currentlang = data[0];
-const optiondata = data.slice(1);
-
-    optiondata.forEach(langname => {
+    data.forEach(langname => {
       const option = document.createElement("div");
       const img = document.createElement("img");
       img.src = `/lang/${langname}_flag.png`;
-      img.width = 20;
-      img.height = 14;
+      img.width = 30;
+      img.height = 10;
       const text = document.createElement("span");
       text.textContent = langname;
       
-      if (langname.toUpperCase().startsWith( currentlang )) {
+      if (langname.toUpperCase().startsWith(browserLang)) {
   defaultLangFound = true;
    selected.innerHTML = `<img src="/lang/${langname}_flag.png" width="20" height="14" style="border-radius:2px;margin-right:5px;"> ${langname}`;
 }
@@ -407,7 +403,7 @@ const optiondata = data.slice(1);
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `Lang=${encodeURIComponent(langname)}`
-    }).then(() => window.location.reload());
+    });
       });
 
       optionsContainer.appendChild(option);
@@ -468,7 +464,7 @@ const optiondata = data.slice(1);
             slabel.textContent = "";
         
             if (!selectedWordList) {
-                slabel.textContent = /*[[#{gc.please.select.wordlist}]]*/ "Kérlek válassz egy szólistát!";
+                slabel.textContent = "Kérlek válassz egy szólistát!";
                 return;
             }
         
@@ -491,12 +487,12 @@ const optiondata = data.slice(1);
                 if (resp.includes("ok")) {
                     slabel.textContent = "Játék elindult!";
                 } else {
-                    slabel.textContent = (/*[[#{gc.game.cant.start}]]*/ "Nem sikerült elindítani:") + " " + resp;
+                    slabel.textContent = "Nem sikerült elindítani: " + resp;
                 }
             })
             .catch(err => {
                 console.error("StartGame hiba:", err);
-                slabel.textContent = /*[[#{gc.game.error.on.starting}]]*/ "Hiba történt a játék indításakor.";
+                slabel.textContent = "Hiba történt a játék indításakor.";
             });
         });
         
@@ -526,8 +522,7 @@ const optiondata = data.slice(1);
             data.players.forEach(p => {
                 const playerEl = document.createElement("div");
                 playerEl.className = "player";
-                const unk = /*[[#{gc.unknown}]]*/ "Ismeretlen";
-                playerEl.textContent = p.nev || unk;
+                playerEl.textContent = p.nev || "Ismeretlen";
                 
                 if (!p.alive) playerEl.classList.add("dead");
                 else playerEl.classList.add("alive");
@@ -573,8 +568,7 @@ const optiondata = data.slice(1);
             // Játék állapot & idő
             if (data.onGoing) {
                 startPanel.style.display = "none";
-                const titxt = /*[[#{gc.game.time.active}]]*/ "Idő:";
-                timeInfo.innerHTML = `<h2>${titxt}</h2><b><i> ${formatTime(data.time)}</i></b>`;
+                timeInfo.innerHTML = `<h2>Idő:</h2><b><i> ${formatTime(data.time)}</i></b>`;
                 langs.style.display = "none";
             } else {
                 startPanel.style.display = "block";

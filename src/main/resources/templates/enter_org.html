@@ -113,7 +113,7 @@
         <p th:text="#{enter.name}">Add meg a neved:</p>
         <input type="text" id="username" th:placeholder="#{player.name.here}">
         <br>
-        <button onclick="joinGame()" th:text="#{enter.connect}">Csatlakozás!</button>
+        <button onclick="joinGame()">Csatlakozás!</button>
         <p id="status"></p>
     </div>
     
@@ -121,7 +121,7 @@
     <i><b>developed by cucuteled</b></i>
     </div>
     
-    <script th:inline="javascript">
+    <script>
     
     window.addEventListener('load', () => {
         fetch('/authMe', {
@@ -142,12 +142,12 @@
             const name = nameInput.value.trim();
             
             if (name === '') {
-                nameInput.placeholder = /*[[#{enter.error.enter.name}]]*/ "Adj meg egy nevet!";
+                nameInput.placeholder = "Adj meg egy nevet!";
                 nameInput.value = '';
                 return;
             }
             if (name.length < 2) {
-                nameInput.placeholder = /*[[#{enter.error.atleast.two.character}]]*/ "Legalább 2 karaktert adj meg!";
+                nameInput.placeholder = "Legalább 2 karaktert adj meg!";
                 nameInput.value = '';
                 return;
             }
@@ -166,7 +166,7 @@
                 }
             })
             .catch(err => {
-                document.getElementById("status").textContent = /*[[#{error.connection}]]*/ "Hiba a kapcsolat során!";
+                document.getElementById("status").textContent = "Hiba a kapcsolat során!";
                 console.error(err);
             });
         }

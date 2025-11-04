@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hu" xmlns:th="http://www.thymeleaf.org">
+<html lang="hu">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -228,14 +228,14 @@
   <div class="card">
     <h1>IMPOSTOR GAME</h1>
 
-    <p id="myword" th:text="#{game.reveal.word}">Kattints ide a szó megjelenítéséhez</p>
+    <p id="myword">Kattints ide a szó megjelenítéséhez</p>
     <p style="font-size: 1.8rem;" id="gameStatus"></p>
     <p class="VoteLabel" id="VoteLabel"></p>
 
-    <p th:text="#{game.players.listname}">Játékosok:</p>
+    <p>Játékosok:</p>
     <div id="playerList"></div>
 
-    <button id="voteButton" onclick="requestVote()" th:text="#{game.request.vote}">Szavazás indítása!</button>
+    <button id="voteButton" onclick="requestVote()">Szavazás indítása!</button>
     <div style="align-items: center;">
         <p id="status"></p>
     </div>
@@ -245,7 +245,7 @@
     <i><b>developed by cucuteled</b></i>
   </div>
 
-  <script th:inline="javascript">
+  <script>
       window.addEventListener('load', () => {
         fetch('/authMe', {
             method: 'GET',
@@ -320,32 +320,29 @@
           
           const votetext = document.getElementById("VoteLabel");
           if (isVoteOnGoing) {
-             votetext.textContent = /*[[#{game.vote.ongoing}]]*/ "Szavazás folyamatban";
-             
-            const voteSendText = /*[[#{game.vote.send}]]*/ "Szavazás leadása";
-            const voteErrorSelf = /*[[#{game.vote.error.cant.vote.on.yourself}]]*/ "Nem tudsz magadra szavazni!";
+             votetext.textContent = "Szavazás folyamatban";
              
              if (SelectedPlayer != "") {
                  if (SelectedPlayer !== mePlayer.nev) {
-                    votebutton.innerHTML = `<i>${voteSendText} &nbsp;</i>
+                    votebutton.innerHTML = `<i>Szavazás leadása &nbsp;</i>
                     <b style="color: white; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
                       ${SelectedPlayer}
                     </b>
                     <i>&nbsp; játékosra!</i>`;
                  } else {
-                     votebutton.innerHTML = `<i>${voteErrorSelf}</i>`;
+                     votebutton.innerHTML = `<i>Nem tudsz magadra szavazni!</i>`;
                  }
 
              } else {
-                 votebutton.textContent = /*[[#{game.vote.send}]]*/ "Szavazás leadása";
+                 votebutton.innerHTML = "Szavazás leadása";
              }
           } else {
-              votebutton.textContent = /*[[#{game.vote.request}]]*/ "Szavazás kérvényezése";
+              votebutton.textContent = "Szavazás kérvényezése";
               votetext.textContent = "";
           }
         
           if (!ongoing) { // NEM MEGY A JÁTÉK:
-            myword.textContent = /*[[#{game.waiting.on.game.start}]]*/ "Várakozás a játék indítására...";
+            myword.textContent = "Várakozás a játék indítására...";
             myword.style.backgroundColor = "transparent";
             myword.style.cursor = "default";
             gameStatus.textContent = "";
@@ -404,7 +401,7 @@
               }
           
             if (!revealed) { // HA NINCS ELREJTVE:
-              myword.textContent = /*[[#{game.hold.to.reveal}]]*/ "Tartsd lenyomva a szó megtekintéséhez";
+              myword.textContent = "Tartsd lenyomva a szót a megtekintéshez";
               myword.style.backgroundColor = "#000";
               myword.style.cursor = "pointer";
               
@@ -414,7 +411,7 @@
               const isOngoing = isOnGoing;
               if (isOngoing) {
                   if (mePlayer && mePlayer.role === 1) {
-                    myword.textContent = /*[[#{game.you.are.the.impostor}]]*/ "TE VAGY AZ IMPOSZTOR!";
+                    myword.textContent = "TE VAGY AZ IMPOSZTOR!";
                   } else {
                     myword.textContent = data.szo;
                   }
@@ -426,7 +423,7 @@
               const hideWord = () => {
                   const isOngoing = isOnGoing;
                   if (isOngoing) {
-                     myword.textContent = /*[[#{game.hold.to.reveal}]]*/ "Tartsd lenyomva a szó megtekintéséhez";
+                     myword.textContent = "Tartsd lenyomva a szót a megtekintéshez";
                   }
 
               };

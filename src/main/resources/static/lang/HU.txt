@@ -1,0 +1,22 @@
+#lang:HU
+#Common
+error_:Hiba!
+#GameClass
+time_text_:Játék idő:
+println_theword_:A szó:
+time_up_:Az idő lejárt!
+game_end_:A játék véget ért!
+impostor_win_:Imposztor nyert
+impostor_lose_:Elkapták az imposztort
+msg_impostor_win_:Az imposztor győzött!
+msg_impostor_lose_:A játékosok nyertek
+msg_impostors_:Imposztorok:
+#RequestController
+game_starts_:Játék indul! Szólista:
+time_:, idő:
+msg_tie_vote_:[!]Döntetlen, a szavazás érvénytelen és megismétlődik
+msg_player_voted_out_:[!]Kiesett:
+game_start_info_name_equal_error_:Már van ilyen nevű játékos.
+game_start_info_maximum_8_player_:Maximum 8 játékos!
+game_start_info_minimum_3_player_:Minimum 3 játékos!
+game_start_info_already_started_:Már elindult!

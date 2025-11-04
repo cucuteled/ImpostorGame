@@ -5,14 +5,19 @@ import com.impogame.ImpostorGame.Jatekos;
 import com.impogame.ImpostorGame.StartData;
 import com.sun.tools.javac.Main;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import com.impogame.ImpostorGame.langControl;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Controller
@@ -20,19 +25,34 @@ public class RequestController {
 
     // for the connecting users
     @GetMapping("/")
-    public String home() {
+    public String home(HttpServletRequest request, HttpServletResponse response) {
+        String lang = ImpostorGameApplication.Jatek.getSelectedLang();
+        Locale locale = new Locale(lang != null ? lang.toLowerCase() : "hu");
+
+        RequestContextUtils.getLocaleResolver(request).setLocale(request, response, locale);
+
         return "enter";
     }
 
     // game HTML
     @GetMapping("/game")
-    public String redirectToGame() {
+    public String redirectToGame(HttpServletRequest request, HttpServletResponse response) {
+        String lang = ImpostorGameApplication.Jatek.getSelectedLang();
+        Locale locale = new Locale(lang != null ? lang.toLowerCase() : "hu");
+
+        RequestContextUtils.getLocaleResolver(request).setLocale(request, response, locale);
+
         return "game";
     }
 
     // for the host
     @GetMapping("/start")
-    public String GameControlPanel() {
+    public String GameControlPanel(HttpServletRequest request, HttpServletResponse response) {
+        String lang = ImpostorGameApplication.Jatek.getSelectedLang();
+        Locale locale = new Locale(lang != null ? lang.toLowerCase() : "hu");
+
+        RequestContextUtils.getLocaleResolver(request).setLocale(request, response, locale);
+
         return "GameControlPanel";
     }
 
@@ -68,10 +88,10 @@ public class RequestController {
     @ResponseBody
     public String startGame(@RequestBody StartData startData)
     {
-        if (ImpostorGameApplication.Jatek.isOnGoing()) return "Már elindult.";
-        if (ImpostorGameApplication.Jatek.playerCount() < 3) return "Minimum 3 játékos!";
+        if (ImpostorGameApplication.Jatek.isOnGoing()) return langControl.game_start_info_already_started;
+        if (ImpostorGameApplication.Jatek.playerCount() < 3) return langControl.game_start_info_minumum_3_player;
 
-        System.out.println("Játék indul! Szólista: " + startData.getSelectedWordList() + ", idő: " + startData.getTime());
+        System.out.println(langControl.game_starts + " " + startData.getSelectedWordList() + langControl.time + " " + startData.getTime());
         ImpostorGameApplication.Jatek.StartGame(startData);
 
         return "ok"; // game started
@@ -151,13 +171,13 @@ public class RequestController {
 
             if (maxCount > 1) {
                 // DÖNTETLEN SZAVAZÁS:
-                ImpostorGameApplication.Jatek.setMessage("[!]Döntetlen, a szavazás érvénytelen és megismétlődik");
+                ImpostorGameApplication.Jatek.setMessage(langControl.msg_tie_vote);
                 // szavazás újra kezdése
                 initVote();
                 return "ok";
             } else {
                 // KIESIK:
-                ImpostorGameApplication.Jatek.setMessage("[!]Kiesett: " + legtobb);
+                ImpostorGameApplication.Jatek.setMessage(langControl.msg_player_voted_out + " " + legtobb);
             }
 
             if (legtobb != null) {
@@ -180,9 +200,9 @@ public class RequestController {
         if (nev == null || nev.trim().isEmpty()) {
             return "Hibás név";
         }
-        if (ImpostorGameApplication.Jatek.findPlayerByName(nev)) return "Már van ilyen nevű játékos.";
-        if (ImpostorGameApplication.Jatek.playerCount() >=8) return "Maximum 8 játékos!";
-        if (ImpostorGameApplication.Jatek.isOnGoing()) return "Már elindult!";
+        if (ImpostorGameApplication.Jatek.findPlayerByName(nev)) return langControl.game_start_info_name_equal_error;
+        if (ImpostorGameApplication.Jatek.playerCount() >=8) return langControl.game_start_info_maximum_8_player;
+        if (ImpostorGameApplication.Jatek.isOnGoing()) return langControl.game_start_info_already_started;
 
         ImpostorGameApplication.Jatek.addJatekos(new Jatekos(nev));
 
@@ -221,7 +241,7 @@ public class RequestController {
     @ResponseBody
     public infoData getInfo(String auth) {
         if (auth == null || auth.equals("")) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Hiba");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, langControl.error);
         }
         if (ImpostorGameApplication.Jatek.findPlayerByName(auth) == false && auth.equals("admin") == false) {
             infoData hiba = new infoData(

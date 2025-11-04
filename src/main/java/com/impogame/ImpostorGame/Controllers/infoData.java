@@ -16,6 +16,8 @@ public class infoData {
     private boolean isVote;
     private String message = "";
 
+    private String lang;
+
     public infoData(int time, List<Jatekos> players, boolean isOnGoing, String szo) {
         this.time = time;
         this.players = players;
@@ -28,7 +30,10 @@ public class infoData {
             this.message = ImpostorGameApplication.Jatek.getMessage();
         }
 
+        this.lang = ImpostorGameApplication.Jatek.getSelectedLang();
     }
+
+    public String getLang() { return lang; }
 
     public String getMessage() {
         return message;
