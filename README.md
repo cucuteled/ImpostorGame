@@ -22,7 +22,7 @@ It was built just for fun, but it’s fully functional and easy to run.
 
 1. **Download Java SDK 23.0.1 or later**  
    👉 [Oracle Java Downloads](https://www.oracle.com/java/technologies/downloads/#jdk25-windows)
-   ☕🕵️ **[Download Jar File (THE GAME)](https://github.com/cucuteled/ImpostorGame/raw/main/ImpostorGame-1.0.6.jar)**  👉 run this file
+   ☕🕵️ **[Download Jar File (THE GAME)](https://github.com/cucuteled/ImpostorGame/raw/main/ImpostorGame-1.0.7.jar)**  👉 run this file
 
 3. **Locate the build file** in the root folder  
    (the one ending with `.jar`, for example: `ImpostorGame-v1.0.7.jar`)
