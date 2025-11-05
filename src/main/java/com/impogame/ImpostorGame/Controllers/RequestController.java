@@ -56,6 +56,13 @@ public class RequestController {
         return "GameControlPanel";
     }
 
+    @GetMapping("/setSort")
+    @ResponseBody
+    public String setSort(@RequestParam String type) {
+        ImpostorGameApplication.Jatek.setSortType(type);
+        return "ok";
+    }
+
     @GetMapping("/get-lang")
     @ResponseBody
     public List<String> getLang() {
@@ -118,16 +125,22 @@ public class RequestController {
         if (voter == null || voter.trim().isEmpty()) {
             return "Hibás név";
         }
-        //System.out.println("voter: " + voter + "\nvoted: " + votedPlayer + "\n--");
+        System.out.println("voter: " + voter + "\nvoted: " + votedPlayer + "\n--");
         if (!ImpostorGameApplication.Jatek.findPlayerByName(voter)) return "Nincs ilyen nevű";
         // hozzáadjuk a szavazást kezdeményezi kivánót
         if (!wantToVote.contains(voter) && ImpostorGameApplication.Jatek.findPlayerByNameAndIsAlive(voter)) {
 
             // Számoljuk a szavazatokat ha megy a szavazás, olyanoktól akik még nincsenek a wantToVoteban, azaz még nem voksoltak
-            if (ImpostorGameApplication.Jatek.isVote()) {
+            if (ImpostorGameApplication.Jatek.isVote() && ImpostorGameApplication.Jatek.findPlayerByNameAndIsAlive(votedPlayer)) {
                 if (ImpostorGameApplication.Jatek.findPlayerByName(votedPlayer) && !wantToVote.contains(voter)) {
                     votedPlayers += votedPlayer + ";";
                     ImpostorGameApplication.Jatek.incVoteForPlayer(votedPlayer);
+                    //
+                    Jatekos jvoter = ImpostorGameApplication.Jatek.getPlayer(voter);
+                    if (jvoter.getRole() == 0) {
+                        jvoter.incAllTimeVote();
+                        if (ImpostorGameApplication.Jatek.getPlayer(votedPlayer).getRole() == 1) jvoter.incGoodVote();
+                    }
                 }
             }
 
@@ -137,7 +150,7 @@ public class RequestController {
             wantToVoteInt++;
         }
 
-        //System.out.println("wantovote: " + wantToVote + "\n" + "wantotovoteint: " + wantToVoteInt + "\n votedplayers: " + votedPlayers + "\n---\n" + voter + ":" + votedPlayer);
+        System.out.println("wantovote: " + wantToVote + "\n" + "wantotovoteint: " + wantToVoteInt + "\n votedplayers: " + votedPlayers + "\n---\n" + voter + ":" + votedPlayer);
 
         // init vote, HA: az élő játékosok több mint 50% szavazni akar
         if ((double)wantToVoteInt / (double)ImpostorGameApplication.Jatek.playersAlive() *100.0 > 50.0 && !ImpostorGameApplication.Jatek.isVote()) {

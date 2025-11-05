@@ -481,7 +481,7 @@
                 }
             
                 div.onclick = () => {
-                    if (isVoteOnGoing && p.nev != meJatekos.nev) {
+                    if (isVoteOnGoing && p.nev != meJatekos.nev && p.alive) {
                         SelectedPlayer = p.nev;
                         selectPlayer();
                     }
@@ -538,7 +538,7 @@
                 //document.getElementById("status").textContent = txt;
             })
             .catch(err => console.error("Vote hiba:", err));
-            //SelectedPlayer = "";
+            SelectedPlayer = "";
         }
         
     // Idő formázás (pl. 300 → 5:00)

@@ -65,6 +65,7 @@
             min-height: 200px;
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
             transition: all 0.2s ease-in-out;
+            max-width: 500px;
         }
 
         .panel:hover {
@@ -178,6 +179,72 @@
             background-color: #00ffc31a;
         }
         
+#playerlist {
+    text-align: center;
+}
+
+.player-header, .player-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+    align-items: center;
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    margin: 5px 0;
+    padding: 10px;
+}
+
+.player-header {
+    background-color: #00ffc31a;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.player-row {
+    background-color: #2a2a2a;
+    transition: background 0.2s ease;
+}
+
+.player-row.dead {
+    background-color: rgba(180, 0, 0, 0.2);
+    border: 1px solid rgba(180, 0, 0, 0.4);
+}
+
+.player-row:hover {
+    background-color: #00ffc31a;
+}
+
+.col {
+    text-align: center;
+}
+
+.col.name {
+    text-align: left;
+    padding-left: 8px;
+    cursor: n-resize;
+}
+
+.col.name:hover {
+    background-color: #00ffc31a;
+    transition: all 0.3s ease;
+}
+
+.col.sortable {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.col.sortable:hover {
+    background-color: rgba(0, 255, 195, 0.15);
+}
+
+.trash {
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+        
         .exit-button {
             position: fixed;
             top: 16px;
@@ -197,6 +264,7 @@
     font-style: italic;
     transition: all 0.3s ease;
     cursor: default;
+    pointer-events: none;
 }
         
         .alsotitle a {
@@ -204,6 +272,7 @@
     text-decoration: none;
     font-weight: bold;
     transition: all 0.3s ease;
+    pointer-events: auto;
 }
 
 .alsotitle a:hover {
@@ -363,7 +432,6 @@
 
       <div class="alsotitle">
     <a href="/howtoplay.html"><p th:text="#{gc.help}">Útmutató a játékhoz</p></a>
-    <br>
     <i><b>developed by cucuteled</b></i>
   </div>
 
@@ -547,36 +615,89 @@ const optiondata = data.slice(1);
                 .finally(() => fetching = false);
         }, 500);
         
+        function setSort(type) {
+            fetch(`/setSort?type=${encodeURIComponent(type)}`)
+                .then(r => r.text())
+                .catch(err => console.error("setSort hiba:", err));
+        }
+        
         // Frissítés logika
         function updateGameInfo(data) {
             // Játékoslista frissítése
             playersDiv.innerHTML = "";
-            data.players.forEach(p => {
-                const playerEl = document.createElement("div");
-                playerEl.className = "player";
-                const unk = /*[[#{gc.unknown}]]*/ "Ismeretlen";
-                playerEl.textContent = p.nev || unk;
-                
-                if (!p.alive) playerEl.classList.add("dead");
-                else playerEl.classList.add("alive");
+            
+            if (!data.onGoing) {
+                const impostorHeaderText = /*[[#{gc.stats.win.as.impostor}]]*/ "Győzelmi arány imposztorként";
+                const playerHeaderText = /*[[#{gc.stats.win.as.player}]]*/ "Győzelmi arány játékosként";
+                const goodVotesHeaderText = /*[[#{gc.stats.good.votes}]]*/ "Helyesen megtippelt szavazatok";
+            
+                const playersHeader = /*[[#{gc.stats.players}]]*/ "Játékos";
+                const allSort = /*[[#{gc.stats.all.alt.sort}]]*/ "Rendezés összesített eredmény alapján";
+                const impostorSortAlt = /*[[#{gc.stats.win.as.impostor.alt.sort}]]*/ "Rendezés Imposztorbeli győzelem alapján";
+                const playerSortAlt = /*[[#{gc.stats.win.as.player.alt.sort}]]*/ "Rendezés Játékosbeli győzelem alapján";
+                const goodVotesSortAlt = /*[[#{gc.stats.good.votes.alt.sort}]]*/ "Rendezés Helyes szavazatok aránya alapján";
+            
+                const header = document.createElement("div");
+                header.className = "player-header";
+                header.innerHTML = `
+                    <div class="col name" onclick="setSort('byall')" title="${allSort}"><b>${playersHeader}</b></div>
+                    <div class="col sortable" onclick="setSort('byimpostor')" title="${impostorSortAlt}"><b>${impostorHeaderText}</b></div>
+                    <div class="col sortable" onclick="setSort('byplayer')" title="${playerSortAlt}"><b>${playerHeaderText}</b></div>
+                    <div class="col sortable" onclick="setSort('byvotes')" title="${goodVotesSortAlt}"><b>${goodVotesHeaderText}</b></div>
+                `;
+                playersDiv.appendChild(header);
+            }
+            
+    data.players.forEach(p => {
+        const playerEl = document.createElement("div");
+        playerEl.className = "player-row";
         
-                // kuka ikon
-                const trash = document.createElement("img");
-                trash.src = "kuka.png";
-                trash.alt = "Játékos eltávolítása";
-                trash.style.width = "20px";
-                trash.style.height = "20px";
-                trash.style.marginLeft = "10px";
-                trash.style.cursor = "pointer";
+        const trash = document.createElement("img");
+        trash.src = "kuka.png";
+        trash.alt = "Játékos eltávolítása";
+        trash.className = "trash";
+        trash.addEventListener("click", () => {
+            fetch(`/removePlayer?nev=${encodeURIComponent(p.nev)}`, { method: "POST" })
+                .then(() => console.log(`${p.nev} eltávolítva`));
+        });
         
-                trash.addEventListener("click", () => {
-                    fetch(`/removePlayer?nev=${encodeURIComponent(p.nev)}`, { method: "POST" })
-                        .then(() => console.log(`${p.nev} eltávolítva`));
-                });
         
-                playerEl.appendChild(trash);
-                playersDiv.appendChild(playerEl);
-            });
+        if (!data.onGoing) {
+            const impostorWinRate = p.allTimeGame > 0 ? Math.round((p.winAsImpostor / p.allTimeGame) * 100) : 0;
+            const playerWinRate = p.allTimeGame > 0 ? Math.round((p.winAsPlayer / p.allTimeGame) * 100) : 0;
+            const goodVoteRate = p.allTimeVote > 0 ? Math.round((p.goodVote / p.allTimeVote) * 100) : 0;
+            
+            
+            playerEl.innerHTML = `
+                <div class="col name">${p.nev}</div>
+                <div class="col">${impostorWinRate}%</div>
+                <div class="col">${playerWinRate}%</div>
+                <div class="col">${goodVoteRate}%</div>
+            `;
+            playerEl.appendChild(trash);
+        } else {
+            playerEl.innerHTML = `
+                <div class="col name">${p.nev}</div>
+            `;
+            playerEl.prepend(trash);
+        }
+
+        if (!p.alive) playerEl.classList.add("dead");
+
+        playersDiv.appendChild(playerEl);
+    });
+
+    if (data.onGoing) {
+        startPanel.style.display = "none";
+        const titxt = /*[[#{gc.game.time.active}]]*/ "Idő:";
+        timeInfo.innerHTML = `<h2>${titxt}</h2><b><i>${formatTime(data.time)}</i></b>`;
+        langs.style.display = "none";
+    } else {
+        startPanel.style.display = "block";
+        timeInfo.innerHTML = "";
+        langs.style.display = "flex";
+    }
+
                             
                             // Frissítsük a szólistát, ha van ilyen adat
             if (data.wordCollection && Array.isArray(data.wordCollection)) {

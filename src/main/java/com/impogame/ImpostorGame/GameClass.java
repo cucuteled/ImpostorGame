@@ -4,9 +4,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class GameClass {
 
@@ -23,6 +21,10 @@ public class GameClass {
     private List<WordCollection> LangLista = new ArrayList<>();
 
     private String selectedLang = "HU";
+
+    private String sortType = "byplayer";
+
+    private final Random rnd = new Random();
 
     public GameClass() {
         this.jatekosok = new ArrayList<>();
@@ -91,6 +93,11 @@ public class GameClass {
         isOnGoing = true;
         isVote = false;
         message = "";
+        // new game round add to stat:
+        for (Jatekos j : jatekosok) {
+            j.incAllTimeGame();
+        }
+        //
         String[] idostring = data.getTime().split(":");
         time = 300;
         if (idostring.length == 2) {
@@ -109,7 +116,6 @@ public class GameClass {
             j.setAlive(true);
             j.setRole(0);
         }
-        Random rnd = new Random();
         Jatekos j = jatekosok.get(rnd.nextInt(jatekosok.size()));
         j.setRole(1); // imposztor kiválasztva
         // MÁSODIK IMPOSZTOR 5 JÁTÉK VAGY A FELETT
@@ -160,7 +166,12 @@ public class GameClass {
         String imposztorok = "";
 
         for (Jatekos j : jatekosok) {
-            if (j.getRole() == 1) imposztorok += j.getNev() + "\n";
+            if (j.getRole() == 1) { // ha imposztor
+                imposztorok += j.getNev() + "\n";
+                if (isImpostorsAlive()) j.incWinAsImpostor(); // ha az imposztorok nyertek
+            } else { // ha nem imposztor és nem az imposztorok nyertek
+                if (!isImpostorsAlive() && j.isAlive()) j.incWinAsPlayer();
+            }
         }
 
         setMessage(
@@ -171,6 +182,20 @@ public class GameClass {
         );
         isOnGoing = false;
         isVote = false;
+        sortPlayers();
+    }
+
+    public void sortPlayers() {
+        Collections.sort(jatekosok);
+    }
+
+    public String getSortType() {
+        return sortType;
+    }
+
+    public void setSortType(String sortType) {
+        this.sortType = sortType;
+        sortPlayers();
     }
 
     public List<String> getLangs() {
@@ -190,6 +215,13 @@ public class GameClass {
                 break;
             }
         }
+    }
+
+    public Jatekos getPlayer(String JatekosNev) {
+        for (Jatekos j : jatekosok) {
+            if (j.getNev().equals(JatekosNev)) return j;
+        }
+        return jatekosok.getFirst(); // EZ EGY HIBA!
     }
 
     public void  initateVote() {
