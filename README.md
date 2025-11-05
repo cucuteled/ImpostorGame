@@ -25,7 +25,7 @@ It was built just for fun, but it’s fully functional and easy to run.
    ☕🕵️ **[Download Jar File (THE GAME)](https://github.com/cucuteled/ImpostorGame/raw/main/ImpostorGame-1.0.6.jar)**  👉 run this file
 
 3. **Locate the build file** in the root folder  
-   (the one ending with `.jar`, for example: `ImpostorGame-v1.0.6.jar`)
+   (the one ending with `.jar`, for example: `ImpostorGame-v1.0.7.jar`)
 
 4. **Run the game**
    by double click or:
